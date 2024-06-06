@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login & Admin Panel</title>
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    const Login = ({ onLogin, onRegisterClick }) => {
+      const [username, setUsername] = useState('');
+      const [password, setPassword] = useState('');
+      const [loginError, setLoginError] = useState('');
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        const success = onLogin(username, password);
+        if (!success) {
+          setLoginError('Incorrect username or password');
+        }
+      };
+
+      return (
+        <div className="login-form">
+          <h2>Login</h2>
+          <input
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <button type="submit" onClick={handleSubmit}>Login</button>
+          <p>Don't have an account? <a href="#" onClick={onRegisterClick}>Register</a></p>
+          {loginError && <div className="message error-message">{loginError}</div>}
+        </div>
+      );
+    };
+
+    const Register = ({ onRegister, onRegisterSuccess, backgroundColor }) => {
+      const [username, setUsername] = useState('');
+      const [password, setPassword] = useState('');
+      const [registered, setRegistered] = useState(false);
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        onRegister(username, password);
+        setRegistered(true);
+        onRegisterSuccess();
+      };
+
+      return (
+        <div className="register-form" style={{ backgroundColor }}>
+          <h2>Register</h2>
+          <input
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <button type="submit" onClick={handleSubmit}>Register</button>
+          {registered && <div className="message">Registration successful!</div>}
+        </div>
+      );
+    };
+
+    const AdminPanel = () => {
+      return (
+        <div className="admin-panel">
+          <h2>Admin Panel</h2>
+          <p>Welcome to the admin panel!</p>
+        </div>
+      );
+    };
+
+    const App = () => {
+      const [loggedIn, setLoggedIn] = useState(false);
+      const [showRegister, setShowRegister] = useState(false);
+      const [registerBackground, setRegisterBackground] = useState('#fff'); // Domyślny kolor tła
+
+      const handleLogin = (username, password) => {
+        if (username === 'admin' && password === 'admin') {
+          setLoggedIn(true);
+          return true;
+        } else {
+          return false;
+        }
+      };
+
+      const handleRegister = (username, password) => {
+        console.log('Registered:', username, password);
+      };
+
+      const handleRegisterSuccess = () => {
+        setShowRegister(false);
+      };
+
+      const handleRegisterClick = () => {
+        setShowRegister(true);
+        setRegisterBackground(`#${Math.floor(Math.random()*16777215).toString(16)}`);
+      };
+
+      return (
+        <div className="container" style={{ backgroundImage: `url('https://source.unsplash.com/random/1600x900?landscape')` }}>
+          {!loggedIn && !showRegister ? 
+            <Login onLogin={handleLogin} onRegisterClick={handleRegisterClick} /> 
+            : loggedIn ? 
+            <AdminPanel /> 
+            : 
+            <Register onRegister={handleRegister} onRegisterSuccess={handleRegisterSuccess} backgroundColor={registerBackground} />
+          }
+        </div>
+      );
+    };
+
+    ReactDOM.render(<App />, document.getElementById('root'));
+  </script>
+</body>
+</html>
